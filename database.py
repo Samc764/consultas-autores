@@ -11,8 +11,14 @@ from loguru import logger  # Para logging
 # ============================================================================
 # CONFIGURACIÓN DE CONEXIÓN
 # ============================================================================
-# Base de datos PostgreSQL en Neon Cloud
-DATABASE_URL = "postgresql://estudiantes:npg_FtxeYOVU8yD7@ep-withered-wind-apq7hmfj-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
+# La URL de la base de datos se toma de la variable de entorno DATABASE_URL.
+# En Vercel debes configurar DATABASE_URL en el panel de Variables de Entorno.
+from os import getenv
+
+DATABASE_URL = getenv(
+    "DATABASE_URL",
+    "postgresql://estudiantes:npg_FtxeYOVU8yD7@ep-withered-wind-apq7hmfj-pooler.c-7.us-east-1.aws.neon.tech/neondb?sslmode=require"
+)
 
 # Pool global: instancia única para toda la aplicación
 _pool: asyncpg.Pool | None = None
