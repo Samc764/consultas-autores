@@ -92,8 +92,9 @@ async def buscar_libros(
     try:
         titulos = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
         return templates.TemplateResponse(
-            "buscar.html",
-            {
+            request=request,
+            name="buscar.html",
+            context={
                 "request": request,
                 "titulos": titulos,
                 "busqueda_titulo": titulo,
@@ -129,8 +130,9 @@ async def mostrar_titulos(
     titulos = await buscar_titulos(db)
 
     return templates.TemplateResponse(
-        "titulos.html",
-        {
+        request=request,
+        name="titulos.html",
+        context={
             "request": request,
             "titulos": titulos,
             "busqueda_titulo": "",
@@ -152,8 +154,9 @@ async def traer_titulos(
     """Búsqueda de títulos usando la plantilla tituloss.html"""
     titulos = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
     return templates.TemplateResponse(
-        "tituloss.html",
-        {
+        request=request,
+        name="tituloss.html",
+        context={
             "request": request,
             "titulos": titulos,
             "busqueda_titulo": titulo,
