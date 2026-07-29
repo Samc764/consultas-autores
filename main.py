@@ -100,13 +100,21 @@ async def buscar_libros(
                 "busqueda_autor": autor,
             },
         )
-        <head><title>Error</title></head>
-        <body style="background: #1a1a2e; color: #ff5555; padding: 20px; font-family: Arial;">
-            <h1>⚠️ Ocurrió un error en el servidor</h1>
-            <p>{str(e)}</p>
-        </body>
-        </html>
-        """
+    except Exception as e:
+        logger.error(f"Error en endpoint buscar: {e}", exc_info=True)
+        return HTMLResponse(
+            f"""
+            <!DOCTYPE html>
+            <html>
+            <head><title>Error</title></head>
+            <body style="background: #1a1a2e; color: #ff5555; padding: 20px; font-family: Arial;">
+                <h1>⚠️ Ocurrió un error en el servidor</h1>
+                <p>{str(e)}</p>
+            </body>
+            </html>
+            """,
+            status_code=500,
+        )
 
 
 # ============================================================================
