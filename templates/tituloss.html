@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Búsqueda de Libros</title>
+    <style>
+        body { font-family: Arial; background: #1a1a2e; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #16213e; padding: 20px; border-radius: 8px; }
+        h1 { text-align: center; color: #00d4ff; }
+        form { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
+        input { padding: 8px; background: #0f3460; border: 1px solid #00d4ff; color: #fff; }
+        button { padding: 8px 20px; background: #00d4ff; color: #000; border: none; cursor: pointer; font-weight: bold; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #0f3460; color: #00d4ff; padding: 10px; text-align: left; border-bottom: 2px solid #00d4ff; }
+        td { padding: 10px; border-bottom: 1px solid #0f3460; }
+        tr:hover { background: #0f3460; }
+        .empty { text-align: center; color: #999; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Búsqueda de Libros 2023</h1>
+        
+        <form method="get" action="/traer_titulos">
+            <input type="text" name="titulo" placeholder="Título (Ej: Whale)" value="{{ busqueda_titulo }}">
+            <input type="text" name="autor" placeholder="Autor (Ej: Kurkov)" value="{{ busqueda_autor }}">
+            <button type="submit">🔍 Buscar</button>
+        </form>
+
+        {% if titulos %}
+            <p style="color: #00d4ff;">✓ Encontrados: {{ titulos|length }} resultado(s)</p>
+            <table>
+                <thead>
+                    <tr><th>Título</th><th>Autor</th></tr>
+                </thead>
+                <tbody>
+                    {% for libro in titulos %}
+                    <tr>
+                        <td>{{ libro.titulo }}</td>
+                        <td>{{ libro.autor }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty">No se encontraron resultados</div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
+    </div>
+
+</body>
+
+</html>

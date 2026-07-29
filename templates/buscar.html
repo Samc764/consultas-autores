@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Buscar Libros</title>
+    <style>
+        body { font-family: Arial; background: #1a1a2e; color: #e0e0e0; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: #16213e; padding: 20px; }
+        h1 { color: #00d4ff; }
+        form { margin-bottom: 20px; }
+        input { padding: 5px; width: 200px; }
+        button { padding: 5px 15px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #0f3460; padding: 10px; text-align: left; }
+        th { background: #0f3460; color: #00d4ff; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Buscar Libros</h1>
+        
+        <form method="get">
+            <input type="text" name="titulo" placeholder="Buscar título..." value="{{ busqueda_titulo }}">
+            <input type="text" name="autor" placeholder="Buscar autor..." value="{{ busqueda_autor }}">
+            <button type="submit">Buscar</button>
+        </form>
+
+        {% if titulos %}
+            <p>Se encontraron {{ titulos|length }} resultados</p>
+            <table>
+                <tr>
+                    <th>Título</th>
+                    <th>Autor</th>
+                </tr>
+                {% for libro in titulos %}
+                <tr>
+                    <td>{{ libro.titulo }}</td>
+                    <td>{{ libro.autor }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>Sin resultados</p>
+        {% endif %}
+    </div>
+</body>
+</html>

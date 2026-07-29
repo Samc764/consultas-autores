@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Títulos</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background: #121212;
+            color: #e0e0e0;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: #1e1e1e;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 2rem;
+        }
+
+        .subtitle {
+            color: #999;
+            margin-top: 8px;
+        }
+
+        .badge {
+            background: #333;
+            color: #ffffff;
+            padding: 8px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 10px;
+        }
+
+        th {
+            background: #2a2a2a;
+            color: #ffffff;
+            text-align: left;
+            padding: 16px;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #333;
+        }
+
+        tr {
+            transition: background 0.2s ease;
+        }
+
+        tr:hover {
+            background: #292929;
+        }
+
+        .number {
+            width: 80px;
+            color: #888;
+            font-weight: bold;
+        }
+
+        .title {
+            color: #ffffff;
+            font-size: 1.05rem;
+        }
+
+        .empty-message {
+            text-align: center;
+            padding: 30px;
+            color: #888;
+            font-style: italic;
+        }
+
+        .footer {
+            margin-top: 20px;
+            color: #777;
+            font-size: 0.9rem;
+            text-align: center;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            th,
+            td {
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="header">
+            <div>
+                <h1>Lista de títulos</h1>
+                <p class="subtitle">
+                    Estos son los primeros títulos encontrados en la base de datos.
+                </p>
+            </div>
+
+            <div class="badge">
+                Primeros 10
+            </div>
+        </div>
+
+        {% if titulos %}
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Título</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for titulo in titulos %}
+
+                <tr>
+                    <td class="number">
+                        {{ loop.index }}
+                    </td>
+
+                    <td class="title">
+                        {{ titulo.titulo }}
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+        {% else %}
+
+        <div class="empty-message">
+            No se encontraron títulos.
+        </div>
+
+        {% endif %}
+
+        <div class="footer">
+            Mostrando un máximo de 10 títulos
+        </div>
+
+    </div>
+
+</body>
+
+</html>
