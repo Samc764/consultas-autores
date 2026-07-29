@@ -1,7 +1,6 @@
 # ============================================================================
-# MAIN.PY - Archivo principal de FastAPI
+# MAIN.PY - Archivo principal de FastAPI (Corregido y Optimizado)
 # ============================================================================
-# Rutas (endpoints) principales de la aplicación web
 
 from contextlib import asynccontextmanager
 
@@ -19,11 +18,7 @@ from consultas import autores, buscar_titulo, buscar_titulos, buscar_titulos_con
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """
-    Gestor del ciclo de vida de FastAPI.
-    Startup: Crear conexiones a BD
-    Shutdown: Cerrar conexiones a BD
-    """
+    """Gestor del ciclo de vida de FastAPI para el Pool de conexiones."""
     await init_db_pool()  # Inicializar pool
     yield  # Ejecutar app
     await close_db_pool()  # Cerrar pool
@@ -42,13 +37,11 @@ templates = Jinja2Templates(directory="templates")
 @app.get("/usuarios")
 async def listar_usuarios(
     request: Request,
-    db: asyncpg.Connection = Depends(get_db)  # Inyecta conexion BD
+    db: asyncpg.Connection = Depends(get_db)
 ):
-    """Obtiene lista de autores y retorna HTML"""
-    # Consultar autores
+    """Obtiene lista de autores y retorna HTML via Jinja2"""
     registros = await autores(db)
 
-    # Renderizar template con datos
     return templates.TemplateResponse(
         request=request,
         name="usuarios.html",
@@ -57,18 +50,16 @@ async def listar_usuarios(
 
 
 # ============================================================================
-# RUTA 2: GET /traer_titulo - Listar títulos de libros
+# RUTA 2: GET /traer_titulo - Listar títulos de libros (Muestra)
 # ============================================================================
 @app.get("/traer_titulo")
 async def traer_titulo_endpoint(
     request: Request,
-    conn=Depends(get_db)  # Inyecta conexion BD
+    conn: asyncpg.Connection = Depends(get_db)
 ):
-    """Obtiene títulos de libros y retorna HTML"""
-    # Consultar títulos
+    """Obtiene títulos de libros de muestra y retorna HTML via Jinja2"""
     titulos = await buscar_titulo(conn)
 
-    # Renderizar template con datos
     return templates.TemplateResponse(
         request=request,
         name="titulos.html",
@@ -81,41 +72,19 @@ async def traer_titulo_endpoint(
 # ============================================================================
 @app.get("/buscar", response_class=HTMLResponse)
 async def buscar_libros(
-    titulo: str = "",      # Filtro opcional: título
-    autor: str = "",       # Filtro opcional: autor
-    db: asyncpg.Connection = Depends(get_db)  # Inyecta conexion BD
+    titulo: str = "",      
+    autor: str = "",       
+    db: asyncpg.Connection = Depends(get_db)
 ):
     """
-    Búsqueda principal de libros.
-    Parámetros: ?titulo=palabra&autor=palabra
-    Retorna HTML puro (sin Jinja2 para evitar problemas)
+    Búsqueda principal utilizando el controlador de consultas.py.
+    Retorna HTML estructurado dinámicamente.
     """
     try:
-        # Construir query dinámica según parámetros
-        query_parts = ["SELECT titulo, autor FROM lista_larga WHERE anio = 2023"]
-        params = []  # Parámetros seguros (anti SQL injection)
+        # OPTIMIZACIÓN: Delegamos la query segura y los filtros a consultas.py
+        result = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
         
-        # Añadir filtro de título si se proporciona
-        if titulo:
-            params.append(f"%{titulo}%")
-            query_parts.append(f"AND LOWER(titulo) LIKE LOWER(${len(params)})")
-        
-        # Añadir filtro de autor si se proporciona
-        if autor:
-            params.append(f"%{autor}%")
-            query_parts.append(f"AND LOWER(autor) LIKE LOWER(${len(params)})")
-        
-        # Ordenar y limitar
-        query_parts.append("ORDER BY titulo ASC LIMIT 100;")
-        query = " ".join(query_parts)
-        
-        # Ejecutar query (con parámetros es seguro contra SQL injection)
-        if params:
-            result = await db.fetch(query, *params)
-        else:
-            result = await db.fetch(query)
-        
-        # Construir HTML
+        # Construir interfaz HTML
         html = f"""
         <!DOCTYPE html>
         <html>
@@ -126,8 +95,8 @@ async def buscar_libros(
                 .container {{ max-width: 900px; margin: 0 auto; background: #16213e; padding: 20px; }}
                 h1 {{ color: #00d4ff; }}
                 form {{ margin-bottom: 20px; }}
-                input {{ padding: 5px; width: 200px; margin-right: 10px; }}
-                button {{ padding: 5px 15px; }}
+                input {{ padding: 5px; width: 200px; margin-right: 10px; background: #0f3460; color: white; border: 1px solid #00d4ff; }}
+                button {{ padding: 5px 15px; background: #00d4ff; color: #1a1a2e; font-weight: bold; border: none; cursor: pointer; }}
                 table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
                 th, td {{ border: 1px solid #0f3460; padding: 10px; text-align: left; }}
                 th {{ background: #0f3460; color: #00d4ff; }}
@@ -166,24 +135,24 @@ async def buscar_libros(
                 </table>
             """
         else:
-            html += "<p style='color: #999;'>Sin resultados</p>"
+            html += "<p style='color: #999;'>Sin resultados que coincidan.</p>"
         
         html += """
             </div>
         </body>
         </html>
         """
-        
         return html
         
     except Exception as e:
-        logger.error(f"Error: {e}", exc_info=True)
+        logger.error(f"Error en endpoint buscar: {e}", exc_info=True)
         return f"""
         <!DOCTYPE html>
         <html>
         <head><title>Error</title></head>
-        <body style="background: #1a1a2e; color: red; padding: 20px;">
-            <h1>Error: {str(e)}</h1>
+        <body style="background: #1a1a2e; color: #ff5555; padding: 20px; font-family: Arial;">
+            <h1>⚠️ Ocurrió un error en el servidor</h1>
+            <p>{str(e)}</p>
         </body>
         </html>
         """
@@ -195,38 +164,24 @@ async def buscar_libros(
 @app.get("/titulos")
 async def mostrar_titulos(
     request: Request,
-    db=Depends(get_db)  # Inyecta conexion BD
+    db: asyncpg.Connection = Depends(get_db)
 ):
-    """Obtiene TODOS los títulos del 2023 sin filtros"""
-    # Consultar todos los títulos
+    """Obtiene TODOS los títulos del 2023 sin filtros y los renderiza"""
     titulos = await buscar_titulos(db)
 
-    # Renderizar template
+    # CORRECCIÓN: Se añadieron los nombres explícitos de los parámetros de Jinja2
     return templates.TemplateResponse(
-        "titulos.html",
-        {
-            "request": request,
-            "titulos": titulos
-        }
+        request=request,
+        name="titulos.html",
+        context={"titulos": titulos}
     )
 
 
+# ============================================================================
+# RUTA API: GET /api/titulos-2023 - JSON puro
+# ============================================================================
 @app.get("/api/titulos-2023")
 async def get_titulos_2023(db: asyncpg.Connection = Depends(get_db)):
-    """
-    Retorna JSON con título y autor de lista_larga donde anio = 2023
-    """
-    try:
-        query = """
-            SELECT titulo, autor
-            FROM lista_larga
-            WHERE anio = 2023;
-        """
-        filas = await db.fetch(query)
-        return [dict(fila) for fila in filas]
-    except Exception as e:
-        logger.error(f"Error al consultar títulos 2023: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Error al consultar títulos: {str(e)}"
-        )
+    """Retorna JSON nativo con títulos de la lista_larga del año 2023"""
+    # Reutiliza la función del core de consultas para evitar SQL duplicado
+    return await buscar_titulos(db)
