@@ -80,83 +80,26 @@ async def traer_titulo_endpoint(
 # ============================================================================
 @app.get("/buscar", response_class=HTMLResponse)
 async def buscar_libros(
-    titulo: str = "",      
-    autor: str = "",       
+    request: Request,
+    titulo: str = "",
+    autor: str = "",
     db: asyncpg.Connection = Depends(get_db)
 ):
     """
     Búsqueda principal utilizando el controlador de consultas.py.
-    Retorna HTML estructurado dinámicamente.
+    Retorna HTML a través de la plantilla buscar.html.
     """
     try:
-        # OPTIMIZACIÓN: Delegamos la query segura y los filtros a consultas.py
-        result = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
-        
-        # Construir interfaz HTML
-        html = f"""
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Buscar Libros</title>
-            <style>
-                body {{ font-family: Arial; background: #1a1a2e; color: #e0e0e0; padding: 20px; }}
-                .container {{ max-width: 900px; margin: 0 auto; background: #16213e; padding: 20px; }}
-                h1 {{ color: #00d4ff; }}
-                form {{ margin-bottom: 20px; }}
-                input {{ padding: 5px; width: 200px; margin-right: 10px; background: #0f3460; color: white; border: 1px solid #00d4ff; }}
-                button {{ padding: 5px 15px; background: #00d4ff; color: #1a1a2e; font-weight: bold; border: none; cursor: pointer; }}
-                table {{ width: 100%; border-collapse: collapse; margin-top: 20px; }}
-                th, td {{ border: 1px solid #0f3460; padding: 10px; text-align: left; }}
-                th {{ background: #0f3460; color: #00d4ff; }}
-                tr:hover {{ background: #0f3460; }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>📚 Búsqueda de Libros 2023</h1>
-                
-                <form method="get">
-                    <input type="text" name="titulo" placeholder="Título..." value="{titulo}">
-                    <input type="text" name="autor" placeholder="Autor..." value="{autor}">
-                    <button type="submit">🔍 Buscar</button>
-                </form>
-
-                <p>Se encontraron <strong>{len(result)}</strong> resultado(s)</p>
-        """
-        
-        if result:
-            html += """
-                <table>
-                    <tr>
-                        <th>Título</th>
-                        <th>Autor</th>
-                    </tr>
-            """
-            for row in result:
-                html += f"""
-                    <tr>
-                        <td>{row['titulo']}</td>
-                        <td>{row['autor']}</td>
-                    </tr>
-                """
-            html += """
-                </table>
-            """
-        else:
-            html += "<p style='color: #999;'>Sin resultados que coincidan.</p>"
-        
-        html += """
-            </div>
-        </body>
-        </html>
-        """
-        return html
-        
-    except Exception as e:
-        logger.error(f"Error en endpoint buscar: {e}", exc_info=True)
-        return f"""
-        <!DOCTYPE html>
-        <html>
+        titulos = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
+        return templates.TemplateResponse(
+            "buscar.html",
+            {
+                "request": request,
+                "titulos": titulos,
+                "busqueda_titulo": titulo,
+                "busqueda_autor": autor,
+            },
+        )
         <head><title>Error</title></head>
         <body style="background: #1a1a2e; color: #ff5555; padding: 20px; font-family: Arial;">
             <h1>⚠️ Ocurrió un error en el servidor</h1>
@@ -177,11 +120,37 @@ async def mostrar_titulos(
     """Obtiene TODOS los títulos del 2023 sin filtros y los renderiza"""
     titulos = await buscar_titulos(db)
 
-    # CORRECCIÓN: Se añadieron los nombres explícitos de los parámetros de Jinja2
     return templates.TemplateResponse(
-        request=request,
-        name="titulos.html",
-        context={"titulos": titulos}
+        "titulos.html",
+        {
+            "request": request,
+            "titulos": titulos,
+            "busqueda_titulo": "",
+            "busqueda_autor": "",
+        },
+    )
+
+
+# ============================================================================
+# RUTA 5: GET /traer_titulos - Buscar títulos con filtros y mostrar resultados
+# ============================================================================
+@app.get("/traer_titulos")
+async def traer_titulos(
+    request: Request,
+    titulo: str = "",
+    autor: str = "",
+    db: asyncpg.Connection = Depends(get_db)
+):
+    """Búsqueda de títulos usando la plantilla tituloss.html"""
+    titulos = await buscar_titulos_con_filtros(db, titulo=titulo, autor=autor)
+    return templates.TemplateResponse(
+        "tituloss.html",
+        {
+            "request": request,
+            "titulos": titulos,
+            "busqueda_titulo": titulo,
+            "busqueda_autor": autor,
+        },
     )
 
 
@@ -191,5 +160,4 @@ async def mostrar_titulos(
 @app.get("/api/titulos-2023")
 async def get_titulos_2023(db: asyncpg.Connection = Depends(get_db)):
     """Retorna JSON nativo con títulos de la lista_larga del año 2023"""
-    # Reutiliza la función del core de consultas para evitar SQL duplicado
     return await buscar_titulos(db)

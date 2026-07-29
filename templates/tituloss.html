@@ -19,9 +19,17 @@
 </head>
 <body>
     <div class="container">
+        <nav style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:24px;">
+            <a href="/usuarios" style="color:#00d4ff; text-decoration:none;">Autores</a>
+            <a href="/traer_titulo" style="color:#00d4ff; text-decoration:none;">Primeros títulos</a>
+            <a href="/titulos" style="color:#00d4ff; text-decoration:none;">Todos los títulos</a>
+            <a href="/traer_titulos" style="color:#00d4ff; text-decoration:none;">Buscar títulos</a>
+            <a href="/buscar" style="color:#00d4ff; text-decoration:none;">Buscar libros</a>
+        </nav>
+
         <h1>📚 Búsqueda de Libros 2023</h1>
         
-        <form method="get" action="/traer_titulo">
+        <form method="get" action="/traer_titulos">
             <input type="text" name="titulo" placeholder="Título (Ej: Whale)" value="{{ busqueda_titulo }}">
             <input type="text" name="autor" placeholder="Autor (Ej: Kurkov)" value="{{ busqueda_autor }}">
             <button type="submit">🔍 Buscar</button>
