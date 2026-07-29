@@ -63,12 +63,39 @@
 <body>
 
     <div class="container">
-        <nav style="display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;">
-            <a href="/usuarios" style="color:#00d4ff; text-decoration:none;">Autores</a>
-            <a href="/traer_titulo" style="color:#00d4ff; text-decoration:none;">Primeros títulos</a>
-            <a href="/titulos" style="color:#00d4ff; text-decoration:none;">Todos los títulos</a>
-            <a href="/traer_titulos" style="color:#00d4ff; text-decoration:none;">Buscar títulos</a>
-            <a href="/buscar" style="color:#00d4ff; text-decoration:none;">Buscar libros</a>
+        <style>
+            .nav-buttons {
+                display: flex;
+                gap: 12px;
+                flex-wrap: wrap;
+                margin-bottom: 20px;
+            }
+
+            .nav-buttons a {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 16px;
+                background: #00d4ff;
+                color: #121212;
+                border-radius: 8px;
+                text-decoration: none;
+                font-weight: 700;
+                transition: transform 0.15s ease, box-shadow 0.15s ease;
+            }
+
+            .nav-buttons a:hover {
+                transform: translateY(-1px);
+                box-shadow: 0 8px 20px rgba(0, 212, 255, 0.18);
+            }
+        </style>
+
+        <nav class="nav-buttons">
+            <a href="/usuarios">Autores</a>
+            <a href="/traer_titulo">Primeros títulos</a>
+            <a href="/titulos">Todos los títulos</a>
+            <a href="/traer_titulos">Buscar títulos</a>
+            <a href="/buscar">Buscar libros</a>
         </nav>
         <h1>Autores Registrados</h1>
 
