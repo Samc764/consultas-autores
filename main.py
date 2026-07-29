@@ -5,7 +5,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request, Depends, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 import asyncpg
 from loguru import logger  # Logging de eventos y errores
@@ -29,6 +29,14 @@ app = FastAPI(lifespan=lifespan)
 
 # Configurar carpeta de plantillas Jinja2
 templates = Jinja2Templates(directory="templates")
+
+
+# ============================================================================
+# RUTA RAÍZ: GET / - Redirige a /usuarios para evitar 404 en Vercel
+# ============================================================================
+@app.get("/")
+async def root():
+    return RedirectResponse(url="/usuarios")
 
 
 # ============================================================================
